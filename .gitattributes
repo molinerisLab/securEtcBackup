@@ -1,0 +1,75 @@
+# STRICT HARDENED PRODUCTION PROTECTION FOR /etc WITH GIT-CRYPT
+# Encrypt secrets, keys, credentials, tokens, backup copies
+
+# System auth
+/etc/shadow        filter=git-crypt diff=git-crypt
+/etc/shadow-       filter=git-crypt diff=git-crypt
+/etc/gshadow       filter=git-crypt diff=git-crypt
+/etc/gshadow-      filter=git-crypt diff=git-crypt
+/etc/security/opasswd filter=git-crypt diff=git-crypt
+
+# SSH host keys
+/etc/ssh/ssh_host_*_key   filter=git-crypt diff=git-crypt
+
+# TLS / PKI
+/etc/ssl/private/**       filter=git-crypt diff=git-crypt
+/etc/ssl/**.key           filter=git-crypt diff=git-crypt
+/etc/ssl/**.pem           filter=git-crypt diff=git-crypt
+*.key                     filter=git-crypt diff=git-crypt
+*.pem                     filter=git-crypt diff=git-crypt
+*.crt                     filter=git-crypt diff=git-crypt
+*.csr                     filter=git-crypt diff=git-crypt
+*.p12                     filter=git-crypt diff=git-crypt
+*.pfx                     filter=git-crypt diff=git-crypt
+*.der                     filter=git-crypt diff=git-crypt
+
+# Let's Encrypt (private keys + accounts)
+/etc/letsencrypt/archive/**/privkey*.pem filter=git-crypt diff=git-crypt
+/etc/letsencrypt/live/**/privkey.pem filter=git-crypt diff=git-crypt
+/etc/letsencrypt/accounts/** filter=git-crypt diff=git-crypt
+
+# Database credentials
+/etc/mysql/**             filter=git-crypt diff=git-crypt
+/etc/postgresql/**        filter=git-crypt diff=git-crypt
+/etc/pgbouncer/**         filter=git-crypt diff=git-crypt
+
+# Mail system
+/etc/postfix/sasl_passwd* filter=git-crypt diff=git-crypt
+/etc/exim4/passwd.client  filter=git-crypt diff=git-crypt
+/etc/dovecot/private/**   filter=git-crypt diff=git-crypt
+
+# Network & VPN
+/etc/openvpn/**           filter=git-crypt diff=git-crypt
+/etc/wireguard/**         filter=git-crypt diff=git-crypt
+/etc/ipsec.secrets        filter=git-crypt diff=git-crypt
+/etc/strongswan/ipsec.secrets filter=git-crypt diff=git-crypt
+/etc/ppp/chap-secrets     filter=git-crypt diff=git-crypt
+/etc/ppp/pap-secrets      filter=git-crypt diff=git-crypt
+
+# Samba / Kerberos
+/etc/krb5.keytab          filter=git-crypt diff=git-crypt
+/etc/samba/secrets.tdb    filter=git-crypt diff=git-crypt
+/etc/samba/private/**     filter=git-crypt diff=git-crypt
+/etc/samba/smbpasswd      filter=git-crypt diff=git-crypt
+
+# Service password files / tokens
+**/*secret*               filter=git-crypt diff=git-crypt
+**/*token*                filter=git-crypt diff=git-crypt
+**/*.env                  filter=git-crypt diff=git-crypt
+**/*.netrc                filter=git-crypt diff=git-crypt
+**/*.rclone.conf          filter=git-crypt diff=git-crypt
+
+# RADIUS, Auth, LDAP
+/etc/sssd/sssd.conf       filter=git-crypt diff=git-crypt
+/etc/ldap/**secret*       filter=git-crypt diff=git-crypt
+
+# Docker / K8s / automation
+/etc/docker/**            filter=git-crypt diff=git-crypt
+/etc/kubernetes/**        filter=git-crypt diff=git-crypt
+/etc/rancher/**           filter=git-crypt diff=git-crypt
+
+# Misc credential files
+**/*.gpg                  filter=git-crypt diff=git-crypt
+**/*.asc                  filter=git-crypt diff=git-crypt
+**/*.age                  filter=git-crypt diff=git-crypt
+
