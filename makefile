@@ -69,3 +69,48 @@ clean:
 
 secure-init: check-tools init-git add-attributes init-gitcrypt init-etckeeper encrypted-commit echo-key verify
 	@echo "[OK] Secure encrypted /etc Git repo initialized"
+
+
+.PHONY: backup-remote set-remote show-remote
+
+set-remote:
+	@echo "Enter your private GitHub repo URL (example: git@github.com:USERNAME/etc-backup.git)"
+	@read -p "Remote URL: " url; \
+	git remote add origin $$url && echo "[+] Remote added: $$url" || echo "[!] Remote already exists"
+
+show-remote:
+	@echo "[*] Current git remotes:"
+	git remote -v || echo "[!] No remote configured"
+
+backup-remote:
+	@echo "[*] Checking git-crypt status..."
+	@if ! git-crypt status 2>/dev/null | grep -q "encrypted"; then \
+		echo "[!] ERROR: git-crypt not active — refusing to push unencrypted data"; exit 1; \
+	fi
+
+	@echo "[*] Ensuring remote exists..."
+	@if ! git remote -v | grep -q origin; then \
+		echo "[!] No origin remote configured. Run:"; \
+		echo ""; \
+		echo "   make set-remote"; \
+		echo ""; \
+		exit 1; \
+	fi
+
+	@echo "[*] Committing changes before push"
+	git add -A
+	git commit -m "Automated encrypted backup" || echo "[i] Nothing to commit"
+
+	@echo "[*] Pushing encrypted /etc to remote"
+	git push origin master --force
+
+	@echo ""
+	@echo "=============================================================="
+	@echo "✅ Encrypted backup pushed to private GitHub repo"
+	@echo "⚠️ REMEMBER: GitHub does NOT store your decryption key"
+	@echo "   Export & store it somewhere safe:"
+	@echo ""
+	@echo "       git-crypt export-key /root/etc-git-crypt.key"
+	@echo ""
+	@echo "   Then move it OFF this server!"
+	@echo "=============================================================="
