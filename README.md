@@ -35,59 +35,112 @@ The repository lives **inside `/etc` itself**:
 /etc/README.md         # this file
 ```
 
-## First-time setup
+## Installation Instructions
 
-Initialize `/etc` as an encrypted Git repository:
+This section explains how to install the secure `/etc` backup system using this repository, which contains:
+
+- `Makefile` (automation commands)
+- `.gitattributes` (encryption rules)
+- `README.md` (documentation)
+
+The objective is to safely install these files into `/etc` **before initializing Git**, so that no sensitive file ever enters history unencrypted.
+
+---
+
+### ⚠️ Important Security Reminder
+
+Do **not** run `git init` inside `/etc` before copying the files.  
+The `.gitattributes` file must exist **before the first commit**, otherwise secrets could be committed in plaintext.
+
+---
+
+### 1. Clone this repository (in a temporary location)
+
+Use HTTPS:
+
+```bash
+cd /root
+git clone https://github.com/molinerisLab/securEtcBackup.git
+```
+
+Or SSH:
+
+```bash
+cd /root
+git clone git@github.com:molinerisLab/securEtcBackup.git
+```
+
+---
+
+### 2. Copy `.gitattributes` and `Makefile` into `/etc`
+
+```bash
+cd securEtcBackup
+cp .gitattributes /etc/
+cp Makefile /etc/
+```
+
+---
+
+### 3. Initialize secure `/etc` versioning
+
+Now that the encryption rules and make commands are in place, you can safely initialize:
 
 ```bash
 cd /etc
 sudo make secure-init
 ```
 
-This performs:
+This will:
 
-1. Install required tools (if missing)
-2. Initialize clean Git repo
-3. Register `.gitattributes` before any commit
-4. Initialize `git-crypt`
-5. Initialize `etckeeper` without cleartext commit
-6. Create first fully-encrypted commit
-7. Prompt to export the symmetric key
-8. Verify encryption (checks `/etc/shadow`)
+- Initialize Git
+- Register encryption filters
+- Enable `git-crypt`
+- Initialize `etckeeper` without clear‑text commit
+- Create the first fully encrypted commit
+- Verify `/etc/shadow` is encrypted
 
-## Export the encryption key (IMPORTANT)
+---
 
-You **must** save the encryption key offline:
+### 4. Export the symmetric key (required!)
 
 ```bash
 sudo git-crypt export-key /root/etc-git-crypt.key
 sudo chmod 600 /root/etc-git-crypt.key
 ```
 
-Store this file **off the server**:
+Store this key **off‑machine**:
 
-- USB key kept offline
+- Offline USB
 - Password manager
-- Printed QR locked in a safe
+- Encrypted vault
 
-If you lose this key, you **cannot decrypt the repo**.
+If you lose it, you **cannot decrypt** your `/etc` history.
 
-## Daily operations
+---
 
-### Check status
-
-```bash
-sudo git status
-```
-
-### Manual commit (usually not needed)
+### 5. (Optional) Push encrypted backup to GitHub
 
 ```bash
-sudo git add -A
-sudo git commit -m "manual config commit"
+sudo make set-remote
+sudo make backup-remote
 ```
 
-`etckeeper` normally commits before/after package upgrades.
+> Ensure your remote repo is **private**.
+
+---
+
+### ✅ Done!
+
+Your `/etc` is now securely versioned, encrypted, and backup‑ready.
+
+You can trigger remote encrypted backups anytime with:
+
+```bash
+sudo make backup-remote
+```
+
+---
 
 ## Remote backup to GitHub
 
